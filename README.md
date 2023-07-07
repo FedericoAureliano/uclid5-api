@@ -58,8 +58,8 @@ Found a counterexample at the inductive step for invariant b_gte_0!
     a := -1
     b := 0
   After next:
-    a := -1
-    b := 0
+    a := 0
+    b := -1
 ```
 
 ## Testing

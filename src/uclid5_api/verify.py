@@ -126,7 +126,7 @@ def induction(m: Module):
             for x, v in before.items():
                 print(indent(indent(f"{x} := {model.eval(v)}")))
             print(indent("After next:"))
-            for x, v in before.items():
+            for x, v in after_next.items():
                 print(indent(indent(f"{x} := {model.eval(v)}")))
             return False
         elif check == z3.unknown:
