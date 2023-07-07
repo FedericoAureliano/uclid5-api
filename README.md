@@ -4,3 +4,8 @@
 ```sh
 pip3 install -e .
 ```
+
+## Test
+```sh
+pipx run tox
+```

@@ -9,8 +9,15 @@ except PackageNotFoundError:  # pragma: no cover
 finally:
     del version, PackageNotFoundError
 
-from .ast import Module
+import z3
+
+from .module import Module
+from .printer import UCLIDFormatter
+from .types import IntegerSort
+
+z3.z3printer._Formatter = UCLIDFormatter()
 
 __all__ = [
     "Module",
+    "IntegerSort",
 ]

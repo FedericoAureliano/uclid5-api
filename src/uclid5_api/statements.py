@@ -6,53 +6,20 @@ from dataclasses import dataclass
 
 import z3
 
-from uclid5_api.printer import UCLIDFormatter
-from uclid5_api.utils import indent
-
-z3.z3printer._Formatter = UCLIDFormatter()
+from .utils import indent
 
 
-class Module:
+@dataclass
+class Invariant:
     """
-    A UCLID5 module
+    An invariant
     """
 
-    def __init__(self, name):
-        """
-        Create a UCLID5 module
-        """
-        self.name = name
-        self.init = SequentialBlock()
-        self.next = ConcurentBlock()
-        self._vars = []
-        self._invs = []
-
-    def declare_variable(self, name, sort):
-        """
-        Add a variable to the module
-        """
-        v = z3.Const(name, sort)
-        self._vars.append(v)
-        return v
-
-    def add_invariant(self, name, inv):
-        """
-        Add an invariant to the module
-        """
-        self._invs.append((name, inv))
+    name: str
+    pred: z3.ExprRef
 
     def __str__(self) -> str:
-        """
-        Return the string representation of the module
-        """
-        vars = indent("\n".join([f"var {v}: {v.sort()};" for v in self._vars]))
-        init = indent("init " + str(self.init))
-        next = indent("next " + str(self.next))
-        invs = indent(
-            "\n".join([f"invariant {name}: {inv};" for (name, inv) in self._invs])
-        )
-        out = f"module {self.name} {{\n{vars}\n{init}\n{next}\n{invs}\n}}"
-        return out
+        return f"invariant {self.name}: {self.pred};"
 
 
 class Statement:
