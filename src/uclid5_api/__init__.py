@@ -14,7 +14,7 @@ import z3
 from .module import Module
 from .printer import UCLIDFormatter
 from .types import array, bitvector, boolean, integer, real
-from .verify import step
+from .verify import bmc, induction, step
 
 z3.z3printer._Formatter = UCLIDFormatter()
 
@@ -26,4 +26,6 @@ __all__ = [
     "array",
     "bitvector",
     "step",
+    "bmc",
+    "induction",
 ]
