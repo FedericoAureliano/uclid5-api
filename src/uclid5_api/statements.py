@@ -9,19 +9,6 @@ import z3
 from .utils import indent
 
 
-@dataclass
-class Invariant:
-    """
-    An invariant
-    """
-
-    name: str
-    pred: z3.ExprRef
-
-    def __str__(self) -> str:
-        return f"invariant {self.name}: {self.pred};"
-
-
 class Statement:
     pass
 
@@ -34,22 +21,6 @@ class AssignStmt(Statement):
 
     v: z3.ExprRef
     rhs: z3.ExprRef
-
-    def __str__(self) -> str:
-        return f"{self.v} = {self.rhs};"
-
-
-@dataclass
-class ConcurentAssignStmt(Statement):
-    """
-    A concurrent assignment statement
-    """
-
-    v: z3.ExprRef
-    rhs: z3.ExprRef
-
-    def __str__(self) -> str:
-        return f"{self.v}' = {self.rhs};"
 
 
 @dataclass
@@ -69,7 +40,8 @@ class IfStmt(Statement):
 
 
 class Block(Statement):
-    pass
+    def __init__(self):
+        self._stmts = []
 
 
 class SequentialBlock(Block):
@@ -81,7 +53,7 @@ class SequentialBlock(Block):
         """
         Create a sequential block
         """
-        self._stmts = []
+        Block.__init__(self)
 
     def assign(self, v, expr):
         """
@@ -95,7 +67,11 @@ class SequentialBlock(Block):
         """
         out = "{\n"
         for stmt in self._stmts:
-            out += f"{indent(str(stmt))}\n"
+            match stmt:
+                case AssignStmt(v, rhs):
+                    out += f"{indent(str(v))} = {str(rhs)};\n"
+                case IfStmt(_, _, _):
+                    out += f"{indent(str(stmt))}\n"
         out += "}"
         return out
 
@@ -115,7 +91,7 @@ class ConcurentBlock(Block):
         """
         Add a statement to the block
         """
-        self._stmts.append(ConcurentAssignStmt(v, expr))
+        self._stmts.append(AssignStmt(v, expr))
 
     def __str__(self) -> str:
         """
@@ -123,6 +99,10 @@ class ConcurentBlock(Block):
         """
         out = "{\n"
         for stmt in self._stmts:
-            out += f"{indent(str(stmt))}\n"
+            match stmt:
+                case AssignStmt(v, rhs):
+                    out += f"{indent(str(v))}' = {str(rhs)};\n"
+                case IfStmt(_, _, _):
+                    out += f"{indent(str(stmt))}\n"
         out += "}"
         return out
