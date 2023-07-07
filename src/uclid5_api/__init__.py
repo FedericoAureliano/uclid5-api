@@ -13,13 +13,17 @@ import z3
 
 from .module import Module
 from .printer import UCLIDFormatter
-from .types import IntegerSort
+from .types import array, bitvector, boolean, integer, real
 from .verify import step
 
 z3.z3printer._Formatter = UCLIDFormatter()
 
 __all__ = [
     "Module",
-    "IntegerSort",
+    "integer",
+    "real",
+    "boolean",
+    "array",
+    "bitvector",
     "step",
 ]

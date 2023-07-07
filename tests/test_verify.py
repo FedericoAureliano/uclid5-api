@@ -1,13 +1,9 @@
-from uclid5_api import IntegerSort, Module, step
-
-__author__ = "FedericoAureliano"
-__copyright__ = "FedericoAureliano"
-__license__ = "MIT"
+from uclid5_api import Module, integer, step
 
 
 def test_step():
     m = Module("test")
-    x = m.declare_var("x", IntegerSort())
+    x = m.declare_var("x", integer())
     m.init.assign(x, x + 1)
 
     xp = step(m.vars, m.init)["x"]

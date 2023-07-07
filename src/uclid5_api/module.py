@@ -1,7 +1,3 @@
-"""
-Python interface to UCLID5
-"""
-
 import z3
 
 from .statements import ConcurentBlock, SequentialBlock
@@ -41,11 +37,19 @@ class Module:
         """
         Return the string representation of the module
         """
-        vars = indent("\n".join([f"var {v}: {v.sort()};" for v in self.vars.values()]))
-        init = indent("init " + str(self.init))
-        next = indent("next " + str(self.next))
-        invs = indent(
-            "\n".join([f"invariant {n}: {i};" for (n, i) in self.invs.items()])
+        vars = (
+            indent("\n".join([f"var {v}: {v.sort()};" for v in self.vars.values()]))
+            + "\n"
         )
-        out = f"module {self.name} {{\n{vars}\n{init}\n{next}\n{invs}\n}}"
+        init = indent("init " + str(self.init)) + "\n" if self.init._stmts else ""
+        next = indent("next " + str(self.next)) + "\n" if self.init._stmts else ""
+        invs = (
+            indent(
+                "\n".join([f"invariant {n}: {i};" for (n, i) in self.invs.items()])
+                + "\n"
+            )
+            if self.invs.keys()
+            else ""
+        )
+        out = f"module {self.name} {{\n{vars}{init}{next}{invs}}}"
         return out

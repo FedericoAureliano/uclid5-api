@@ -1,7 +1,3 @@
-"""
-Python interface to UCLID5
-"""
-
 from dataclasses import dataclass
 
 import z3
@@ -34,9 +30,9 @@ class IfStmt(Statement):
         self.else_stmt = else_stmt
 
     def __str__(self) -> str:
-        then_ = indent(str(self.then_stmt))
-        else_ = indent(str(self.else_stmt))
-        return f"if ({self.cond}) {then_}\n else {else_}\n"
+        then_ = str(self.then_stmt)
+        else_ = str(self.else_stmt)
+        return f"if ({self.cond}) {then_}\nelse {else_}"
 
 
 class Block(Statement):
