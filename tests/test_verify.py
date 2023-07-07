@@ -75,6 +75,3 @@ def test_induction_bad():
     m.assert_invariant("b_gte_0", b >= 0)
 
     assert induction(m) is False
-
-
-test_induction_bad()

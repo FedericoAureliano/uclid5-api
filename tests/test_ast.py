@@ -90,6 +90,3 @@ def test_bitvector():
     """
 
     assert str(m).split() == expected.split()
-
-
-test_bitvector()
