@@ -75,7 +75,7 @@ def bmc(m: Module, k: int) -> bool:
 
         states.append(step(states[-1], m.next))
 
-    print("No counterexample found after unrolling {k} times!")
+    print(f"No counterexample found after unrolling {k} times!")
     return True
 
 

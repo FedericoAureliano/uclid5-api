@@ -44,10 +44,8 @@ class Module:
         init = indent("init " + str(self.init)) + "\n" if self.init._stmts else ""
         next = indent("next " + str(self.next)) + "\n" if self.init._stmts else ""
         invs = (
-            indent(
-                "\n".join([f"invariant {n}: {i};" for (n, i) in self.invs.items()])
-                + "\n"
-            )
+            indent("\n".join([f"invariant {n}: {i};" for (n, i) in self.invs.items()]))
+            + "\n"
             if self.invs.keys()
             else ""
         )
