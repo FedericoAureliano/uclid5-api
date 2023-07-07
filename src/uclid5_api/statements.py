@@ -23,20 +23,20 @@ class AssignStmt(Statement):
     rhs: z3.ExprRef
 
 
-@dataclass
 class IfStmt(Statement):
     """
     An if statement
     """
 
-    cond: z3.ExprRef
-    then_stmt: Statement
-    else_stmt: Statement
+    def __init__(self, cond, then_stmt, else_stmt):
+        self.cond = cond
+        self.then_stmt = then_stmt
+        self.else_stmt = else_stmt
 
     def __str__(self) -> str:
         then_ = indent(str(self.then_stmt))
         else_ = indent(str(self.else_stmt))
-        return f"if ({self.cond}) {{\n{then_}\n}} else {{\n{else_}\n}}"
+        return f"if ({self.cond}) {then_}\n else {else_}\n"
 
 
 class Block(Statement):
@@ -60,6 +60,14 @@ class SequentialBlock(Block):
         Add a statement to the block
         """
         self._stmts.append(AssignStmt(v, expr))
+
+    def condition(self, cond):
+        """
+        Add an if statement to the block and return the two branches
+        """
+        stmt = IfStmt(cond, SequentialBlock(), SequentialBlock())
+        self._stmts.append(stmt)
+        return stmt.then_stmt, stmt.else_stmt
 
     def __str__(self) -> str:
         """
@@ -93,6 +101,14 @@ class ConcurentBlock(Block):
         """
         self._stmts.append(AssignStmt(v, expr))
 
+    def condition(self, cond):
+        """
+        Add an if statement to the block and return the two branches
+        """
+        stmt = IfStmt(cond, ConcurentBlock(), ConcurentBlock())
+        self._stmts.append(stmt)
+        return stmt.then_stmt, stmt.else_stmt
+
     def __str__(self) -> str:
         """
         Return the string representation of the block
@@ -102,7 +118,7 @@ class ConcurentBlock(Block):
             match stmt:
                 case AssignStmt(v, rhs):
                     out += f"{indent(str(v))}' = {str(rhs)};\n"
-                case IfStmt(_, _, _):
+                case IfStmt():
                     out += f"{indent(str(stmt))}\n"
         out += "}"
         return out
