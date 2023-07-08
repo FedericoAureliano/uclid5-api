@@ -5,6 +5,18 @@ import z3
 from .utils import indent
 
 
+class Instance:
+    """
+    A UCLID5 module instance
+    """
+
+    def __init__(self, name, module):
+        """
+        Create a UCLID5 module instance
+        """
+        self.name = name
+        self.module = module
+
 class Statement:
     pass
 
@@ -18,6 +30,13 @@ class AssignStmt(Statement):
     v: z3.ExprRef
     rhs: z3.ExprRef
 
+@dataclass
+class NextStmt(Statement):
+    """
+    An next statement
+    """
+
+    m: Instance
 
 class IfStmt(Statement):
     """
@@ -38,6 +57,12 @@ class IfStmt(Statement):
 class Block(Statement):
     def __init__(self):
         self._stmts = []
+
+    def next(self, m):
+        """
+        Add a next statement to the block
+        """
+        self._stmts.append(NextStmt(m))
 
 
 class SequentialBlock(Block):
@@ -74,8 +99,10 @@ class SequentialBlock(Block):
             match stmt:
                 case AssignStmt(v, rhs):
                     out += f"{indent(str(v))} = {str(rhs)};\n"
-                case IfStmt(_, _, _):
+                case IfStmt():
                     out += f"{indent(str(stmt))}\n"
+                case NextStmt(m):
+                    out += indent(f"next({m.name});") + "\n"
         out += "}"
         return out
 
@@ -116,5 +143,7 @@ class ConcurentBlock(Block):
                     out += f"{indent(str(v))}' = {str(rhs)};\n"
                 case IfStmt():
                     out += f"{indent(str(stmt))}\n"
+                case NextStmt(m):
+                    out += indent(f"next({m.name});") + "\n"
         out += "}"
         return out

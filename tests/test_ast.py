@@ -90,3 +90,22 @@ def test_bitvector():
     """
 
     assert str(m).split() == expected.split()
+
+def test_instance():
+    a = Module("a")
+    b = Module("b")
+    i = a.instantiate(b, "i")
+    a.next.next(i)
+
+    expected = """
+        module b {
+        }
+        module a {
+            instance i: b();
+            next {
+                next(i);
+            }
+        }
+    """
+
+    assert str(a).split() == expected.split()
