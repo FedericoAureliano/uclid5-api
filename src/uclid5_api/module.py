@@ -1,8 +1,8 @@
 import copy
-from dataclasses import dataclass
+
 import z3
 
-from .statements import ConcurentBlock, SequentialBlock, Instance
+from .statements import ConcurentBlock, Instance, SequentialBlock
 from .utils import indent
 
 
@@ -45,20 +45,34 @@ class Module:
         self.instances[i] = i
         return i
 
-
     def __str__(self) -> str:
         """
         Return the string representation of the module
         """
         submodules = "\n".join([str(m.module) for m in self.instances.values()]) + "\n"
         vars = (
-            indent("\n".join([f"var {v}: {v.sort()};" for v in self.vars.values()]))
-            + "\n"
-        ) if self.vars.keys() else ""
+            (
+                indent("\n".join([f"var {v}: {v.sort()};" for v in self.vars.values()]))
+                + "\n"
+            )
+            if self.vars.keys()
+            else ""
+        )
         instances = (
-            indent("\n".join([f"instance {i.name}: {i.module.name}();" for i in self.instances.values()]))
-            + "\n"
-        ) if self.instances.keys() else ""
+            (
+                indent(
+                    "\n".join(
+                        [
+                            f"instance {i.name}: {i.module.name}();"
+                            for i in self.instances.values()
+                        ]
+                    )
+                )
+                + "\n"
+            )
+            if self.instances.keys()
+            else ""
+        )
         init = indent("init " + str(self.init)) + "\n" if self.init._stmts else ""
         next = indent("next " + str(self.next)) + "\n" if self.next._stmts else ""
         invs = (
@@ -67,5 +81,7 @@ class Module:
             if self.invs.keys()
             else ""
         )
-        out = submodules + f"module {self.name} {{\n{vars}{instances}{init}{next}{invs}}}"
+        out = (
+            submodules + f"module {self.name} {{\n{vars}{instances}{init}{next}{invs}}}"
+        )
         return out

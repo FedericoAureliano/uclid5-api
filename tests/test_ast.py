@@ -91,6 +91,7 @@ def test_bitvector():
 
     assert str(m).split() == expected.split()
 
+
 def test_instance():
     a = Module("a")
     b = Module("b")

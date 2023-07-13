@@ -17,6 +17,7 @@ class Instance:
         self.name = name
         self.module = module
 
+
 class Statement:
     pass
 
@@ -30,6 +31,7 @@ class AssignStmt(Statement):
     v: z3.ExprRef
     rhs: z3.ExprRef
 
+
 @dataclass
 class NextStmt(Statement):
     """
@@ -37,6 +39,7 @@ class NextStmt(Statement):
     """
 
     m: Instance
+
 
 class IfStmt(Statement):
     """
