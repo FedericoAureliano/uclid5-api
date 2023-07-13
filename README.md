@@ -66,3 +66,8 @@ Found a counterexample at the inductive step for invariant b_gte_0!
 ```sh
 pipx run tox
 ```
+
+## Formatting
+```sh
+pipx run pre-commit run --all-files --show-diff-on-failure
+```
