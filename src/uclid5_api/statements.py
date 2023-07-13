@@ -64,6 +64,12 @@ class Block(Statement):
         """
         self._stmts.append(NextStmt(m))
 
+    def undo(self):
+        """
+        Undo the last statement
+        """
+        self._stmts.pop()
+
 
 class SequentialBlock(Block):
     """
@@ -82,7 +88,7 @@ class SequentialBlock(Block):
         """
         self._stmts.append(AssignStmt(v, expr))
 
-    def condition(self, cond):
+    def branch(self, cond):
         """
         Add an if statement to the block and return the two branches
         """
@@ -124,7 +130,7 @@ class ConcurentBlock(Block):
         """
         self._stmts.append(AssignStmt(v, expr))
 
-    def condition(self, cond):
+    def branch(self, cond):
         """
         Add an if statement to the block and return the two branches
         """

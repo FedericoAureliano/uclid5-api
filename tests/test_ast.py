@@ -35,9 +35,9 @@ def test_if():
     x = m.declare_var("x", integer())
     m.init.assign(x, 0)
 
-    then, else_ = m.next.condition(x == 0)
-    then.assign(x, x + 1)
-    then2, else2 = else_.condition(x < 10)
+    then1, else1 = m.next.branch(x == 0)
+    then1.assign(x, x + 1)
+    then2, else2 = else1.branch(x < 10)
     then2.assign(x, x - 1)
     else2.assign(x, x - 2)
 

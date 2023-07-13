@@ -26,7 +26,7 @@ def test_step_concurent():
 def test_step_if():
     m = Module("test")
     x = m.declare_var("x", integer())
-    then, else_ = m.init.condition(x > 0)
+    then, else_ = m.init.branch(x > 0)
     then.assign(x, x - 1)
     else_.assign(x, x + 1)
 
