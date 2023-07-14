@@ -1,4 +1,4 @@
-from uclid5_api import Module, array, bitvector, integer
+from uclid5_api import Module, array, bitvector, integer, prime
 
 
 def test_assigns():
@@ -86,6 +86,23 @@ def test_bitvector():
     expected = """
         module test {
             var x: bv32;
+        }
+    """
+
+    assert str(m).split() == expected.split()
+
+
+def test_prime():
+    m = Module("test")
+    x = m.declare_var("x", integer())
+    m.next.assign(x, prime(x) + 1)
+
+    expected = """
+        module test {
+            var x: integer;
+            next {
+                x' = x' + 1;
+            }
         }
     """
 

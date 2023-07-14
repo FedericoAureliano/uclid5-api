@@ -28,13 +28,6 @@ class Module:
 
         return v
 
-    def remove_var(self, v):
-        """
-        Remove a variable from the module
-        """
-        if v in self.vars:
-            del self.vars[v]
-
     def assert_invariant(self, name, inv):
         """
         Add an invariant to the module
