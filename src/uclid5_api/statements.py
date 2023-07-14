@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import z3
 
 from .expr import prime
-from .utils import indent
+from .utils import indent, py2expr
 
 
 class Statement:
@@ -92,7 +92,7 @@ class SequentialBlock(Block):
         """
         Add a statement to the block
         """
-        self._stmts.append(AssignStmt(v, expr))
+        self._stmts.append(AssignStmt(v, py2expr(expr, v.sort())))
 
     def branch(self, cond):
         """
@@ -118,7 +118,7 @@ class ConcurentBlock(Block):
         """
         Add a statement to the block
         """
-        self._stmts.append(AssignStmt(prime(v), expr))
+        self._stmts.append(AssignStmt(prime(v), py2expr(expr, v.sort())))
 
     def branch(self, cond):
         """

@@ -12,7 +12,7 @@ def relate(stmt: Statement) -> List[z3.ExprRef]:
     assertions = []
     match stmt:
         case AssignStmt(v, rhs):
-            rhs = py2expr(rhs)
+            rhs = py2expr(rhs, v.sort())
             assertions.append(v == rhs)
         case IfStmt():
             cond = py2expr(stmt.cond)

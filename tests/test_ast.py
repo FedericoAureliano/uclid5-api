@@ -92,6 +92,23 @@ def test_bitvector():
     assert str(m).split() == expected.split()
 
 
+def test_bitvector2():
+    m = Module("test")
+    x = m.declare_var("x", bitvector(32))
+    m.init.assign(x, 0)
+
+    expected = """
+        module test {
+            var x: bv32;
+            init {
+                x = 0bv32;
+            }
+        }
+    """
+
+    assert str(m).split() == expected.split()
+
+
 def test_prime():
     m = Module("test")
     x = m.declare_var("x", integer())
