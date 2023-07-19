@@ -15,7 +15,7 @@ from .expr import prime
 from .module import Module
 from .printer import UCLIDFormatter
 from .types import array, bitvector, boolean, integer, real
-from .verify import bmc, induction
+from .verify import induction
 
 z3.z3printer._Formatter = UCLIDFormatter()
 
@@ -27,6 +27,5 @@ __all__ = [
     "array",
     "bitvector",
     "prime",
-    "bmc",
     "induction",
 ]

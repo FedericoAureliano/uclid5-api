@@ -39,29 +39,6 @@ module fib {
 }
 ```
 
-You can also use bmc and induction. For example, adding
-```
-bmc(m, 5)
-```
-to the previous code will print
-```
-No counterexample found after unrolling 5 times!
-```
-and
-```
-induction(m)
-```
-will print
-```
-Found a counterexample at the inductive step for invariant b_gte_0!
-  Before next:
-    a := -1
-    b := 0
-  After next:
-    a := 0
-    b := -1
-```
-
 ## Testing
 ```sh
 pipx run tox

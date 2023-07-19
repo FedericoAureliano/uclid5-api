@@ -1,13 +1,32 @@
 import z3
 
+from .utils import is_var
 
-def prime(x, i=1):
+
+def prime(x):
     """
     Return the primed version of the variable
     """
-    if (
-        isinstance(x, z3.ExprRef)
-        and z3.is_const(x)
-        and x.decl().kind() == z3.Z3_OP_UNINTERPRETED
-    ):
-        return z3.Const(x.decl().name() + "'" * i, x.sort())
+    match x:
+        case z3.ExprRef() if is_var(x):
+            return z3.Const(x.decl().name() + "'", x.sort())
+        case z3.ExprRef() if z3.is_select(x):
+            return z3.Select(prime(x.arg(0)), x.arg(1))
+        case _:
+            raise Exception(f"Cannot prime {x}")
+
+
+def unprimed(x):
+    """
+    Return the unprimed version of the variable
+    """
+    match x:
+        case z3.ExprRef() if is_var(x):
+            if x.decl().name().endswith("'"):
+                return z3.Const(x.decl().name()[:-1], x.sort())
+            else:
+                return x
+        case z3.ExprRef() if z3.is_select(x):
+            return z3.Select(unprimed(x.arg(0)), x.arg(1))
+        case _:
+            raise Exception(f"Cannot unprime {x}")

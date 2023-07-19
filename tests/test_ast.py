@@ -1,4 +1,4 @@
-from uclid5_api import Module, array, bitvector, integer, prime
+from uclid5_api import Module, array, bitvector, integer, prime, real
 
 
 def test_assigns():
@@ -67,7 +67,7 @@ def test_if():
     assert str(m).split() == expected.split()
 
 
-def test_array():
+def test_array_sort():
     m = Module("test")
     m.declare_var("x", array(integer(), integer()))
 
@@ -123,4 +123,40 @@ def test_prime():
         }
     """
 
+    assert str(m).split() == expected.split()
+
+
+def test_array_assign():
+    m = Module("test")
+    x = m.declare_var("x", array(real(), bitvector(32)))
+    y = m.declare_var("y", real())
+
+    m.next.assign(x[y], 0)
+
+    expected = """
+        module test {
+            var x: [real]bv32;
+            var y: real;
+            next {
+                x'[y] = 0bv32;
+            }
+        }
+    """
+    assert str(m).split() == expected.split()
+
+
+def test_real():
+    m = Module("test")
+    y = m.declare_var("y", real())
+
+    m.next.assign(y, 0)
+
+    expected = """
+        module test {
+            var y: real;
+            next {
+                y' = 0.0;
+            }
+        }
+    """
     assert str(m).split() == expected.split()

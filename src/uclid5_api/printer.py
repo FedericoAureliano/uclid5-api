@@ -9,6 +9,11 @@ class UCLIDFormatter(Formatter):
     def pp_bv(self, a):
         return to_format(a.as_string() + f"bv{a.size()}")
 
+    def pp_rational(self, a):
+        if a.denominator() == 1:
+            return compose(to_format(a.numerator()), to_format(".0"))
+        return to_format(a.as_decimal(self.precision))
+
     def pp_sort(self, s):
         if isinstance(s, z3.ArithSortRef) and s.name() == "Int":
             return to_format("integer")
