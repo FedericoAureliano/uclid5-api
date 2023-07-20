@@ -1,6 +1,6 @@
 import z3
 
-from .utils import is_var
+from .utils import is_datatype_select, is_var
 
 
 def prime(x):
@@ -12,6 +12,10 @@ def prime(x):
             return z3.Const(x.decl().name() + "'", x.sort())
         case z3.ExprRef() if z3.is_select(x):
             return z3.Select(prime(x.arg(0)), x.arg(1))
+        case z3.ExprRef() if is_datatype_select(x):
+            selector = x.decl()
+            record = x.arg(0)
+            return selector(prime(record))
         case _:
             raise Exception(f"Cannot prime {x}")
 

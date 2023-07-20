@@ -1,4 +1,15 @@
-from uclid5_api import Module, array, bitvector, integer, prime, real
+from uclid5_api import (
+    Module,
+    array,
+    bitvector,
+    datatype,
+    enum,
+    integer,
+    prime,
+    real,
+    record,
+    this,
+)
 
 
 def test_assigns():
@@ -159,4 +170,80 @@ def test_real():
             }
         }
     """
+    assert str(m).split() == expected.split()
+
+
+def test_enum():
+    m = Module("test")
+    t, a, _, _ = enum("A", "B", "C")
+    y = m.declare_var("y", t)
+
+    m.next.assign(y, a)
+
+    expected = """
+        module test {
+            var y: enum {A, B, C};
+            next {
+                y' = A;
+            }
+        }
+    """
+
+    assert str(m).split() == expected.split()
+
+
+def test_record():
+    m = Module("test")
+    (
+        t,
+        c,
+        select_x,
+        _,
+    ) = record(("x", integer()), ("y", integer()))
+    z = m.declare_var("z", t)
+
+    m.init.assign(z, c(1, 2))
+    m.next.assign(select_x(z), 0)
+
+    expected = """
+        module test {
+            var z: record {x: integer, y: integer};
+            init {
+                z = {x = 1, y = 2};
+            }
+            next {
+                z'.x = 0;
+            }
+        }
+    """
+    assert str(m).split() == expected.split()
+
+
+def test_datatype():
+    m = Module("test")
+    t, cons, nil, head, tail, is_cons, _ = datatype(
+        "list", ("cons", [("head", integer()), ("tail", this())]), ("nil", [])
+    )
+
+    z = m.declare_var("z", t)
+
+    m.init.assign(z, cons(1, nil()))
+
+    m.next.assign(z, cons(head(z), tail(z)))
+
+    m.assert_invariant("inv1", is_cons(z))
+
+    expected = """
+        module test {
+            var z: datatype list = {cons(head: integer, tail: this) | nil};
+            init {
+                z = cons(1, nil);
+            }
+            next {
+                z' = cons(z.head, z.tail);
+            }
+            invariant inv1: z is cons;
+        }
+    """
+    print(m)
     assert str(m).split() == expected.split()
