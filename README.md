@@ -48,3 +48,22 @@ pipx run tox
 ```sh
 pipx run pre-commit run --all-files --show-diff-on-failure
 ```
+
+## Verification (*EXPERIMENTAL*)
+You can attempt a proof-by-induction with the `induction` function.
+
+```python
+m = Module("test")
+x = m.declare_var("x", integer())
+
+m.init.assign(x, 0)
+then_, else_ = m.init.branch(x == 0)
+then_.assign(x, x + 1)
+else_.assign(x, x + 2)
+m.init.assign(x, x * 7)
+
+m.assert_invariant("x_eq_7", x == 7)
+assert induction(m) is True
+```
+
+You can generate the SMT-LIB queries by giving the induction function a file name prefix, e.g., `induction(m, "test")`.

@@ -11,7 +11,7 @@ finally:
 
 import z3
 
-from .expr import prime
+from .expr import conjunction, disjunction, implies, negation, prime
 from .module import Module
 from .printer import UCLIDFormatter
 from .types import (
@@ -43,5 +43,9 @@ __all__ = [
     "this",
     "sort",
     "prime",
+    "disjunction",
+    "conjunction",
+    "implies",
+    "negation",
     "induction",
 ]

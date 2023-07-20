@@ -1,4 +1,15 @@
-from uclid5_api import Module, array, bitvector, induction, integer, real
+from uclid5_api import (
+    Module,
+    array,
+    bitvector,
+    datatype,
+    implies,
+    induction,
+    integer,
+    negation,
+    real,
+    this,
+)
 
 
 def test_induction_good():
@@ -107,4 +118,40 @@ def test_sequential_if_bad():
     m.init.assign(x, x * 7)
 
     m.assert_invariant("x_eq_7", x == 7)
+    assert induction(m) is False
+
+
+def test_adt_good():
+    m = Module("test")
+    t, cons, nil, head, _, is_cons, is_nil = datatype(
+        "list", ("cons", [("head", integer()), ("tail", this())]), ("nil", [])
+    )
+
+    z = m.declare_var("z", t)
+
+    m.init.assign(z, nil())
+
+    then_, else_ = m.next.branch(is_cons(z))
+    then_.assign(z, cons(head(z), z))
+    else_.assign(z, cons(1, nil()))
+
+    m.assert_invariant("head_is_always_1", implies(negation(is_nil(z)), head(z) == 1))
+    assert induction(m) is True
+
+
+def test_adt_bad():
+    m = Module("test")
+    t, cons, nil, head, _, is_cons, _ = datatype(
+        "list", ("cons", [("head", integer()), ("tail", this())]), ("nil", [])
+    )
+
+    z = m.declare_var("z", t)
+
+    m.init.assign(z, nil())
+
+    then_, else_ = m.next.branch(is_cons(z))
+    then_.assign(z, cons(head(z), z))
+    else_.assign(z, cons(1, nil()))
+
+    m.assert_invariant("head_is_always_1", head(z) == 1)
     assert induction(m) is False

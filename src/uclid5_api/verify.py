@@ -46,7 +46,7 @@ def relate(
     return assertions, modified
 
 
-def base_case(m: Module):
+def base_case(m: Module, write_to_prefix: str):
     """
     Base case
     """
@@ -63,6 +63,13 @@ def base_case(m: Module):
         inv = z3.substitute(inv, [(v, prime(v)) for v in m.vars.values()])
         s.push()
         s.add(z3.Not(inv))
+
+        if write_to_prefix != "":
+            with open(f"{write_to_prefix}_{name}_base.smt2", "w") as f:
+                f.write(s.to_smt2())
+            s.pop()
+            continue
+
         if s.check() == z3.sat:
             print(f"Found a counterexample at the base case for invariant {name}")
             print(s.model())
@@ -72,7 +79,7 @@ def base_case(m: Module):
     return True
 
 
-def inductive_step(m: Module):
+def inductive_step(m: Module, write_to_prefix: str):
     """
     Inductive step
     """
@@ -87,16 +94,24 @@ def inductive_step(m: Module):
         s.push()
         s.add(inv_before)
         s.add(z3.Not(inv_after))
+
+        if write_to_prefix != "":
+            with open(f"{write_to_prefix}_{name}_induction.smt2", "w") as f:
+                f.write(s.to_smt2())
+            s.pop()
+            continue
+
         if s.check() == z3.sat:
             print(f"Found a counterexample for invariant {name} in the inductive step")
             print(s.model())
             return False
         s.pop()
+
     return True
 
 
-def induction(m: Module):
+def induction(m: Module, write_to_prefix=""):
     """
     Proof-by-induction
     """
-    return base_case(m) and inductive_step(m)
+    return base_case(m, write_to_prefix) and inductive_step(m, write_to_prefix)
