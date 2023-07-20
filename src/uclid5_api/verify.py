@@ -4,7 +4,7 @@ import z3
 
 from .expr import prime, unprimed
 from .module import Module
-from .statements import AssignStmt, Block, IfStmt, Statement
+from .statements import AssignStmt, Block, HavocStmt, IfStmt, Statement
 from .utils import is_var, py2expr
 
 
@@ -25,6 +25,10 @@ def relate(
             rhs = py2expr(rhs, v.sort())
             modified.add(unprimed(a))
             assertions.append(a == z3.Store(unprimed(a), index, rhs))
+        case HavocStmt(x) if is_var(x):
+            modified.add(unprimed(x))
+            fresh = z3.FreshConst(x.sort())
+            assertions.append(x == fresh)
         case IfStmt():
             cond = py2expr(stmt.cond)
             then_as, then_ms = relate(stmt.then_stmt, state)

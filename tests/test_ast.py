@@ -260,3 +260,20 @@ def test_usort():
         }
     """
     assert str(m).split() == expected.split()
+
+
+def test_havoc():
+    m = Module("test")
+    x = m.declare_var("x", integer())
+    m.init.havoc(x)
+
+    expected = """
+        module test {
+            var x: integer;
+            init {
+                havoc x;
+            }
+        }
+    """
+
+    assert str(m).split() == expected.split()

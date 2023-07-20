@@ -26,6 +26,18 @@ class AssignStmt(Statement):
         )
 
 
+@dataclass
+class HavocStmt(Statement):
+    """
+    A havoc statement
+    """
+
+    x: z3.ExprRef
+
+    def substitute(self, mapping):
+        return HavocStmt(z3.substitute(self.x, mapping))
+
+
 class IfStmt(Statement):
     """
     An if statement
@@ -64,6 +76,8 @@ class Block(Statement):
             match stmt:
                 case AssignStmt(v, rhs):
                     out += f"{indent(str(v))} = {str(rhs)};\n"
+                case HavocStmt(x):
+                    out += f"havoc {str(x)};\n"
                 case IfStmt():
                     out += f"{indent(str(stmt))}\n"
         out += "}"
@@ -95,6 +109,12 @@ class SequentialBlock(Block):
         Add a statement to the block
         """
         self._stmts.append(AssignStmt(v, py2expr(expr, v.sort())))
+
+    def havoc(self, x):
+        """
+        Add a havoc statement to the block
+        """
+        self._stmts.append(HavocStmt(x))
 
     def branch(self, cond):
         """
@@ -133,6 +153,10 @@ class SequentialBlock(Block):
                     new_rhs = z3.substitute(rhs, prev)
                     new_stmts.append(AssignStmt(new_a[new_index], new_rhs))
                     latest[v.arg(0)] = new_a
+                case HavocStmt(x):
+                    new_x = z3.substitute(x, curr)
+                    new_stmts.append(HavocStmt(new_x))
+                    latest[x] = new_x
                 case IfStmt():
                     cond = stmt.cond
                     then_stmt = stmt.then_stmt
@@ -173,6 +197,12 @@ class ConcurentBlock(Block):
         Add a statement to the block
         """
         self._stmts.append(AssignStmt(prime(v), py2expr(expr, v.sort())))
+
+    def havoc(self, x):
+        """
+        Add a havoc statement to the block
+        """
+        self._stmts.append(HavocStmt(prime(x)))
 
     def branch(self, cond):
         """

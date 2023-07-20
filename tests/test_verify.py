@@ -3,6 +3,7 @@ from uclid5_api import (
     array,
     bitvector,
     datatype,
+    enum,
     implies,
     induction,
     integer,
@@ -155,3 +156,31 @@ def test_adt_bad():
 
     m.assert_invariant("head_is_always_1", head(z) == 1)
     assert induction(m) is False
+
+
+def test_havoc_bad():
+    m = Module("test")
+    x = m.declare_var("x", integer())
+
+    m.init.assign(x, 0)
+    m.init.havoc(x)
+
+    m.assert_invariant("x_eq_0", x == 0)
+
+    assert induction(m) is False
+
+
+def test_havoc_good():
+    m = Module("test")
+    d, a, b = enum("A", "B")
+    z = m.declare_var("z", array(d, integer()))
+    x = m.declare_var("x", d)
+
+    m.init.assign(z[a], 0)
+    m.init.assign(z[b], 0)
+
+    m.init.havoc(x)
+
+    m.assert_invariant("z_at_x_is_0", z[x] == 0)
+
+    assert induction(m) is True
