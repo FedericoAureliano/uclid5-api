@@ -1,6 +1,13 @@
 import z3
 
 
+def sort(name):
+    """
+    Return an uninterpreted sort
+    """
+    return z3.DeclareSort(name)
+
+
 def integer():
     """
     Return the integer sort

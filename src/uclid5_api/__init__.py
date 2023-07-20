@@ -23,6 +23,7 @@ from .types import (
     integer,
     real,
     record,
+    sort,
     this,
 )
 from .verify import induction
@@ -40,6 +41,7 @@ __all__ = [
     "record",
     "datatype",
     "this",
+    "sort",
     "prime",
     "induction",
 ]

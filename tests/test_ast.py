@@ -8,6 +8,7 @@ from uclid5_api import (
     prime,
     real,
     record,
+    sort,
     this,
 )
 
@@ -246,4 +247,16 @@ def test_datatype():
         }
     """
     print(m)
+    assert str(m).split() == expected.split()
+
+
+def test_usort():
+    m = Module("test")
+    m.declare_var("x", sort("A"))
+
+    expected = """
+        module test {
+            var x: A;
+        }
+    """
     assert str(m).split() == expected.split()
