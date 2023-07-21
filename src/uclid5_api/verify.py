@@ -5,7 +5,7 @@ import z3
 from .expr import prime, unprimed
 from .module import Module
 from .statements import AssignStmt, Block, HavocStmt, IfStmt, Statement
-from .utils import is_var, py2expr
+from .utils import is_datatype_select, is_var, py2expr
 
 
 def relate(stmt: Statement) -> Dict[z3.ExprRef, z3.ExprRef]:
@@ -19,8 +19,23 @@ def relate(stmt: Statement) -> Dict[z3.ExprRef, z3.ExprRef]:
             a = v.arg(0)
             index = v.arg(1)
             rhs = py2expr(rhs, v.sort())
-            # TODO: get rid of unprimed?
             assertions[a] = a == z3.Store(unprimed(a), index, rhs)
+        case AssignStmt(v, rhs) if is_datatype_select(v):
+            r = v.children()[0]
+            rhs = py2expr(rhs, v.sort())
+            f = v.decl()
+            to_assert = []
+            for i in range(r.sort().num_constructors()):
+                for j in range(r.sort().constructor(i).arity()):
+                    if f == r.sort().accessor(i, j):
+                        to_assert.append(f(r) == rhs)
+                        break
+            for j in range(r.sort().constructor(i).arity()):
+                g = r.sort().accessor(i, j)
+                if f != g:
+                    to_assert.append(g(r) == g(unprimed(r)))
+
+            assertions[r] = z3.And(*to_assert)
         case HavocStmt(x) if is_var(x):
             fresh = z3.FreshConst(x.sort())
             assertions[x] = x == fresh

@@ -13,6 +13,7 @@ from uclid5_api import (
     real,
     this,
 )
+from uclid5_api.types import record
 
 
 def test_induction_good():
@@ -212,6 +213,20 @@ def test_havoc_good():
     m.assert_invariant("z_at_x_is_0", z[x] == 0)
 
     assert induction(m) is True
+
+
+def test_record_assign_good():
+    m = Module("test")
+    r, _, left, right = record(("left", integer()), ("right", integer()))
+    x = m.declare_var("x", r)
+
+    m.init.assign(left(x), 0)
+    m.next.assign(right(x), right(x) + 1)
+
+    m.assert_invariant("left_is_0", left(x) == 0)
+
+    assert induction(m) is True
+    assert bmc(m, 5) is True
 
 
 def test_blockworld_no_ctx():

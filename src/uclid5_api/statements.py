@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import z3
 
 from .expr import prime
-from .utils import indent, is_var, py2expr
+from .utils import indent, is_datatype_select, is_var, py2expr
 
 
 class Statement:
@@ -153,6 +153,12 @@ class SequentialBlock(Block):
                     new_rhs = z3.substitute(rhs, prev)
                     new_stmts.append(AssignStmt(new_a[new_index], new_rhs))
                     latest[v.arg(0)] = new_a
+                case AssignStmt(v, rhs) if is_datatype_select(v):
+                    new_a = z3.substitute(v.children()[0], curr)
+                    new_rhs = z3.substitute(rhs, prev)
+                    sel = v.decl()
+                    new_stmts.append(AssignStmt(sel(new_a), new_rhs))
+                    latest[v.children()[0]] = new_a
                 case HavocStmt(x):
                     new_x = z3.substitute(x, curr)
                     new_stmts.append(HavocStmt(new_x))
