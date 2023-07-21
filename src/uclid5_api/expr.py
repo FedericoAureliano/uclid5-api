@@ -3,19 +3,19 @@ import z3
 from .utils import is_datatype_select, is_var
 
 
-def prime(x):
+def prime(x, i=1):
     """
     Return the primed version of the variable
     """
     match x:
         case z3.ExprRef() if is_var(x):
-            return z3.Const(x.decl().name() + "'", x.sort())
+            return z3.Const(x.decl().name() + "'" * i, x.sort())
         case z3.ExprRef() if z3.is_select(x):
-            return z3.Select(prime(x.arg(0)), x.arg(1))
+            return z3.Select(prime(x.arg(0), i), x.arg(1))
         case z3.ExprRef() if is_datatype_select(x):
             selector = x.decl()
             record = x.arg(0)
-            return selector(prime(record))
+            return selector(prime(record, i))
         case _:
             raise Exception(f"Cannot prime {x}")
 

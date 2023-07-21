@@ -26,7 +26,7 @@ from .types import (
     sort,
     this,
 )
-from .verify import induction
+from .verify import bmc, induction
 
 z3.z3printer._Formatter = UCLIDFormatter()
 
@@ -48,4 +48,5 @@ __all__ = [
     "implies",
     "negation",
     "induction",
+    "bmc",
 ]

@@ -2,6 +2,7 @@ from uclid5_api import (
     Module,
     array,
     bitvector,
+    boolean,
     datatype,
     enum,
     integer,
@@ -273,6 +274,57 @@ def test_havoc():
             init {
                 havoc x;
             }
+        }
+    """
+
+    assert str(m).split() == expected.split()
+
+
+def test_blockworld():
+    m = Module("blockworld")
+    block, a, b, c, d = enum("S", "D", "F", "G")
+    tower, stack, empty, top, rest, _, _ = datatype(
+        "tower", ("stack", [("top", block), ("rest", this())]), ("empty", [])
+    )
+
+    x = m.declare_var("x", tower)
+    y = m.declare_var("y", tower)
+    choice = m.declare_var("choice", boolean())
+
+    the_tower = stack(a, stack(b, stack(c, stack(d, empty()))))
+
+    m.init.assign(x, the_tower)
+    m.init.assign(y, empty())
+
+    m.next.havoc(choice)
+    then_, else_ = m.next.branch(choice)
+    then_.assign(y, stack(top(x), y))
+    then_.assign(x, rest(x))
+    else_.assign(x, stack(top(y), x))
+    else_.assign(y, rest(y))
+
+    m.assert_invariant("negated_goal", y != the_tower)
+
+    expected = """
+        module blockworld {
+            var x: datatype tower = {stack(top: enum {S, D, F, G}, rest: this) | empty};
+            var y: datatype tower = {stack(top: enum {S, D, F, G}, rest: this) | empty};
+            var choice: boolean;
+            init {
+                x = stack(S, stack(D, stack(F, stack(G, empty))));
+                y = empty;
+            }
+            next {
+                havoc choice';
+                if (choice) {
+                    y' = stack(x.top, y);
+                    x' = x.rest;
+                } else {
+                    x' = stack(y.top, x);
+                    y' = y.rest;
+                }
+            }
+            invariant negated_goal: y != stack(S, stack(D, stack(F, stack(G, empty))));
         }
     """
 

@@ -77,7 +77,7 @@ class Block(Statement):
                 case AssignStmt(v, rhs):
                     out += f"{indent(str(v))} = {str(rhs)};\n"
                 case HavocStmt(x):
-                    out += f"havoc {str(x)};\n"
+                    out += indent(f"havoc {str(x)};") + "\n"
                 case IfStmt():
                     out += f"{indent(str(stmt))}\n"
         out += "}"
