@@ -32,6 +32,10 @@ def unprimed(x):
                 return x
         case z3.ExprRef() if z3.is_select(x):
             return z3.Select(unprimed(x.arg(0)), x.arg(1))
+        case z3.ExprRef() if is_datatype_select(x):
+            selector = x.decl()
+            record = x.arg(0)
+            return selector(unprimed(record))
         case _:
             raise Exception(f"Cannot unprime {x}")
 

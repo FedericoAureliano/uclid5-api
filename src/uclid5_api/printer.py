@@ -69,7 +69,7 @@ class UCLIDFormatter(Formatter):
         if is_datatype_select(a):
             return to_format(f"{a.arg(0).decl().name()}.{a.decl().name()}")
         if is_datatype_recognize(a):
-            return to_format(f"{a.arg(0).decl().name()} is {a.decl().params()[0]}")
+            return to_format(f"{a.arg(0)} is {a.decl().params()[0]}")
         elif is_datatype_construct(a):
             if a.num_args() == 0:
                 return to_format(f"{a.decl().name()}")

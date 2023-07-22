@@ -92,6 +92,21 @@ class Block(Statement):
             new_obj._stmts[i] = new_obj._stmts[i].substitute(mapping)
         return new_obj
 
+    def branch(self, *conds):
+        """
+        Add an if statement to the block and return the two branches
+        """
+        if len(conds) == 1:
+            stmt = IfStmt(conds[0], self.__class__(), self.__class__())
+            self._stmts.append(stmt)
+            return stmt.then_stmt, stmt.else_stmt
+
+        stmt = IfStmt(conds[0], self.__class__(), self.__class__())
+        self._stmts.append(stmt)
+
+        inners = stmt.else_stmt.branch(*conds[1:])
+        return stmt.then_stmt, *inners
+
 
 class SequentialBlock(Block):
     """
@@ -115,14 +130,6 @@ class SequentialBlock(Block):
         Add a havoc statement to the block
         """
         self._stmts.append(HavocStmt(x))
-
-    def branch(self, cond):
-        """
-        Add an if statement to the block and return the two branches
-        """
-        stmt = IfStmt(cond, SequentialBlock(), SequentialBlock())
-        self._stmts.append(stmt)
-        return stmt.then_stmt, stmt.else_stmt
 
     def unrolled(self, start):
         new_stmts = []
@@ -209,11 +216,3 @@ class ConcurentBlock(Block):
         Add a havoc statement to the block
         """
         self._stmts.append(HavocStmt(prime(x)))
-
-    def branch(self, cond):
-        """
-        Add an if statement to the block and return the two branches
-        """
-        stmt = IfStmt(cond, ConcurentBlock(), ConcurentBlock())
-        self._stmts.append(stmt)
-        return stmt.then_stmt, stmt.else_stmt
