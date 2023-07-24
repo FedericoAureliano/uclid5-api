@@ -8,6 +8,15 @@ from .statements import AssignStmt, Block, HavocStmt, IfStmt, Statement
 from .utils import is_datatype_select, is_var, py2expr
 
 
+def process_model(model, state, steps=1):
+    output = {}
+    for v in state:
+        for j in range(steps + 2):
+            # print(f"{prime(v, j)} = {model[prime(v, j)]}")
+            output[prime(v, j)] = model[prime(v, j)]
+    return output
+
+
 def ensure_consistent(s, end_state, next_as):
     next_as = set(next_as.keys())
     selected_from = set()
@@ -103,15 +112,14 @@ def base_case(m: Module, write_to_prefix: str):
             s.pop()
             continue
 
-        if s.check() == z3.sat:
-            print(f"Found a counterexample at the base case for invariant {name}")
-            m = s.model()
-            for v in start_state:
-                print(f"{prime(v)} = {m[prime(v)]}")
-            return False
+        result = s.check()
+        if result == z3.sat:
+            return process_model(s.model(), start_state, 1)
+        elif result == z3.unknown:
+            return {}
         s.pop()
 
-    return True
+    return None
 
 
 def inductive_step(m: Module, write_to_prefix: str):
@@ -138,23 +146,27 @@ def inductive_step(m: Module, write_to_prefix: str):
             s.pop()
             continue
 
-        if s.check() == z3.sat:
-            print(f"Found a counterexample for invariant {name} in the inductive step")
-            m = s.model()
-            for v in start_state:
-                print(f"{v} = {m[v]}")
-                print(f"{prime(v)} = {m[prime(v)]}")
-            return False
+        result = s.check()
+        if result == z3.sat:
+            return process_model(s.model(), start_state, 1)
+        elif result == z3.unknown:
+            return {}
         s.pop()
 
-    return True
+    return None
 
 
 def induction(m: Module, write_to_prefix=""):
     """
     Proof-by-induction
     """
-    return base_case(m, write_to_prefix) and inductive_step(m, write_to_prefix)
+    bc = base_case(m, write_to_prefix)
+    if bc is not None:
+        return bc
+    is_ = inductive_step(m, write_to_prefix)
+    if is_ is not None:
+        return is_
+    return None
 
 
 def bmc(m: Module, k: int, write_to_prefix=""):
@@ -192,13 +204,11 @@ def bmc(m: Module, k: int, write_to_prefix=""):
                 s.pop()
                 continue
 
-            if s.check() == z3.sat:
-                print(f"Found a counterexample for invariant {name} at step {i}")
-                m = s.model()
-                for v in start_state:
-                    for j in range(1, i + 2):
-                        print(f"{prime(v, j)} = {m[prime(v, j)]}")
-                return False
+            result = s.check()
+            if result == z3.sat:
+                return process_model(s.model(), start_state, i)
+            elif result == z3.unknown:
+                return {}
             s.pop()
 
-    return True
+    return None

@@ -23,7 +23,7 @@ def test_induction_good():
     m.next.assign(x, x + 1)
     m.assert_invariant("x_gte_0", x >= 0)
 
-    assert induction(m) is True
+    assert induction(m) is None
 
 
 def test_induction_bad():
@@ -39,7 +39,7 @@ def test_induction_bad():
 
     m.assert_invariant("b_gte_0", b >= 0)
 
-    assert induction(m) is False
+    assert induction(m) is not None
 
 
 def test_bmc_good():
@@ -52,7 +52,7 @@ def test_bmc_good():
 
     m.assert_invariant("x_lt_3", x < 3)
 
-    assert bmc(m, 2) is True
+    assert bmc(m, 2) is None
 
 
 def test_bmc_bad():
@@ -65,7 +65,7 @@ def test_bmc_bad():
 
     m.assert_invariant("x_lt_3", x < 3)
 
-    assert bmc(m, 5) is False
+    assert bmc(m, 5) is not None
 
 
 def test_array_good_induction():
@@ -78,7 +78,7 @@ def test_array_good_induction():
 
     m.assert_invariant("x_at_y_is_0", x[y] == 0)
 
-    assert induction(m) is True
+    assert induction(m) is None
 
 
 def test_array_bad_induction():
@@ -94,7 +94,7 @@ def test_array_bad_induction():
 
     m.assert_invariant("x_at_y_is_0", x[y] == 0)
 
-    assert induction(m) is False
+    assert induction(m) is not None
 
 
 def test_sequential_bad():
@@ -107,7 +107,7 @@ def test_sequential_bad():
 
     m.assert_invariant("x_eq_3", x == 4)
 
-    assert induction(m) is False
+    assert induction(m) is not None
 
 
 def test_sequential_good():
@@ -120,7 +120,7 @@ def test_sequential_good():
 
     m.assert_invariant("x_eq_3", x == 3)
 
-    assert induction(m) is True
+    assert induction(m) is None
 
 
 def test_sequential_if_good():
@@ -134,7 +134,7 @@ def test_sequential_if_good():
     m.init.assign(x, x * 7)
 
     m.assert_invariant("x_eq_7", x == 7)
-    assert induction(m) is True
+    assert induction(m) is None
 
 
 def test_sequential_if_bad():
@@ -148,7 +148,7 @@ def test_sequential_if_bad():
     m.init.assign(x, x * 7)
 
     m.assert_invariant("x_eq_7", x == 7)
-    assert induction(m) is False
+    assert induction(m) is not None
 
 
 def test_adt_good():
@@ -166,7 +166,7 @@ def test_adt_good():
     else_.assign(z, cons(1, nil()))
 
     m.assert_invariant("head_is_always_1", implies(negation(is_nil(z)), head(z) == 1))
-    assert induction(m) is True
+    assert induction(m) is None
 
 
 def test_adt_bad():
@@ -184,7 +184,7 @@ def test_adt_bad():
     else_.assign(z, cons(1, nil()))
 
     m.assert_invariant("head_is_always_1", head(z) == 1)
-    assert induction(m) is False
+    assert induction(m) is not None
 
 
 def test_havoc_bad():
@@ -196,7 +196,7 @@ def test_havoc_bad():
 
     m.assert_invariant("x_eq_0", x == 0)
 
-    assert induction(m) is False
+    assert induction(m) is not None
 
 
 def test_havoc_good():
@@ -212,7 +212,7 @@ def test_havoc_good():
 
     m.assert_invariant("z_at_x_is_0", z[x] == 0)
 
-    assert induction(m) is True
+    assert induction(m) is None
 
 
 def test_record_assign_good():
@@ -225,8 +225,8 @@ def test_record_assign_good():
 
     m.assert_invariant("left_is_0", left(x) == 0)
 
-    assert induction(m) is True
-    assert bmc(m, 5) is True
+    assert induction(m) is None
+    assert bmc(m, 5) is None
 
 
 def test_blockworld_no_ctx():
@@ -263,7 +263,7 @@ def test_blockworld_no_ctx():
     # It shouldn't be possible to move from x to y and have y
     # be the same as the original tower at x.
     # Therefore, the invariant (the negation of the goal) should hold
-    assert bmc(m, 5) is True
+    assert bmc(m, 5) is None
 
 
 def test_blockworld_yes_ctx():
@@ -295,4 +295,4 @@ def test_blockworld_yes_ctx():
     # It should be possible to move from x to y and have y be
     # the reverse of the original tower at x.
     # Therefore, the invariant (the negation of the goal) should be violated
-    assert bmc(m, 5) is False
+    assert bmc(m, 5) is not None
