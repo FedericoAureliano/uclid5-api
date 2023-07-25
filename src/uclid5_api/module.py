@@ -1,6 +1,6 @@
 import z3
 
-from .statements import ConcurentBlock, SequentialBlock
+from .statements import ConcurrentBlock, SequentialBlock
 from .utils import indent
 
 
@@ -15,7 +15,7 @@ class Module:
         """
         self.name = name
         self.init = SequentialBlock()
-        self.next = ConcurentBlock()
+        self.next = ConcurrentBlock()
         self.vars = {}
         self.invs = {}
 

@@ -194,14 +194,14 @@ class SequentialBlock(Block):
         return new_block
 
 
-class ConcurentBlock(Block):
+class ConcurrentBlock(Block):
     """
-    A concurent block
+    A concurrent block
     """
 
     def __init__(self):
         """
-        Create a concurent block
+        Create a concurrent block
         """
         Block.__init__(self)
 
