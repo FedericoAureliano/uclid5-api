@@ -14,6 +14,7 @@ import z3
 from .expr import conjunction, disjunction, implies, negation, prime
 from .module import Module
 from .printer import UCLIDFormatter
+from .statements import ConcurrentBlock, SequentialBlock
 from .types import (
     array,
     bitvector,
@@ -49,4 +50,6 @@ __all__ = [
     "negation",
     "induction",
     "bmc",
+    "SequentialBlock",
+    "ConcurrentBlock",
 ]
