@@ -40,29 +40,36 @@ def unprimed(x):
             raise Exception(f"Cannot unprime {x}")
 
 
-def disjunction(*args):
+def Or(*args):
     """
     Return the disjunction of the arguments
     """
     return z3.Or(*args)
 
 
-def conjunction(*args):
+def And(*args):
     """
     Return the conjunction of the arguments
     """
     return z3.And(*args)
 
 
-def implies(a, b):
+def Implies(a, b):
     """
     Return the implication of a and b
     """
     return z3.Implies(a, b)
 
 
-def negation(a):
+def Not(a):
     """
     Return the negation of a
     """
     return z3.Not(a)
+
+
+def Ite(cond, then_, else_):
+    """
+    Return the if-then-else of cond, then_, and else_
+    """
+    return z3.If(cond, then_, else_)

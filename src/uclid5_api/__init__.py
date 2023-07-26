@@ -11,7 +11,7 @@ finally:
 
 import z3
 
-from .expr import conjunction, disjunction, implies, negation, prime
+from .expr import And, Implies, Ite, Not, Or, prime
 from .module import Module
 from .printer import UCLIDFormatter
 from .statements import ConcurrentBlock, SequentialBlock
@@ -44,10 +44,11 @@ __all__ = [
     "this",
     "sort",
     "prime",
-    "disjunction",
-    "conjunction",
-    "implies",
-    "negation",
+    "Or",
+    "And",
+    "Implies",
+    "Not",
+    "Ite",
     "induction",
     "bmc",
     "SequentialBlock",

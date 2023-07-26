@@ -1,15 +1,15 @@
 from uclid5_api import (
+    Implies,
     Module,
+    Not,
     array,
     bitvector,
     bmc,
     boolean,
     datatype,
     enum,
-    implies,
     induction,
     integer,
-    negation,
     real,
     this,
 )
@@ -165,7 +165,7 @@ def test_adt_good():
     then_.assign(z, cons(head(z), z))
     else_.assign(z, cons(1, nil()))
 
-    m.assert_invariant("head_is_always_1", implies(negation(is_nil(z)), head(z) == 1))
+    m.assert_invariant("head_is_always_1", Implies(Not(is_nil(z)), head(z) == 1))
     assert induction(m) is None
 
 
