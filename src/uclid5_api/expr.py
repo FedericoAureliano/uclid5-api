@@ -40,6 +40,41 @@ def unprimed(x):
             raise Exception(f"Cannot unprime {x}")
 
 
+def Bool(b):
+    """
+    Return a boolean expression
+    """
+    return z3.BoolVal(b)
+
+
+def Int(i):
+    """
+    Return an integer expression
+    """
+    return z3.IntVal(i)
+
+
+def Real(r):
+    """
+    Return a real expression
+    """
+    return z3.RealVal(r)
+
+
+def BitVec(b, n):
+    """
+    Return a bitvector expression
+    """
+    return z3.BitVecVal(b, n)
+
+
+def Array(value, sort):
+    """
+    Return an array expression
+    """
+    return z3.K(sort, value)
+
+
 def Or(*args):
     """
     Return the disjunction of the arguments
