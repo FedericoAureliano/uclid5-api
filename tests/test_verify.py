@@ -153,9 +153,14 @@ def test_sequential_if_bad():
 
 def test_adt_good():
     m = Module("test")
-    t, cons, nil, head, _, is_cons, is_nil = datatype(
+    t, cs, ss, ts = datatype(
         "list", ("cons", [("head", integer()), ("tail", this())]), ("nil", [])
     )
+    cons = cs[0]
+    nil = cs[1]
+    head = ss[0]
+    is_cons = ts[0]
+    is_nil = ts[1]
 
     z = m.declare_var("z", t)
 
@@ -171,9 +176,13 @@ def test_adt_good():
 
 def test_adt_bad():
     m = Module("test")
-    t, cons, nil, head, _, is_cons, _ = datatype(
+    t, cs, ss, ts = datatype(
         "list", ("cons", [("head", integer()), ("tail", this())]), ("nil", [])
     )
+    cons = cs[0]
+    nil = cs[1]
+    head = ss[0]
+    is_cons = ts[0]
 
     z = m.declare_var("z", t)
 
@@ -201,7 +210,9 @@ def test_havoc_bad():
 
 def test_havoc_good():
     m = Module("test")
-    d, a, b = enum("A", "B")
+    d, variants = enum("A", "B")
+    a = variants[0]
+    b = variants[1]
     z = m.declare_var("z", array(d, integer()))
     x = m.declare_var("x", d)
 
@@ -217,7 +228,9 @@ def test_havoc_good():
 
 def test_record_assign_good():
     m = Module("test")
-    r, _, left, right = record(("left", integer()), ("right", integer()))
+    r, _, sels = record(("left", integer()), ("right", integer()))
+    left = sels[0]
+    right = sels[1]
     x = m.declare_var("x", r)
 
     m.init.assign(left(x), 0)
@@ -231,10 +244,19 @@ def test_record_assign_good():
 
 def test_blockworld_no_ctx():
     m = Module("blockworld")
-    block, a, b, c, d = enum("Q", "W", "R", "T")
-    tower, stack, empty, top, rest, is_stack, _ = datatype(
+    block, variants = enum("Q", "W", "R", "T")
+    a = variants[0]
+    b = variants[1]
+    c = variants[2]
+    d = variants[3]
+    tower, cs, ss, ts = datatype(
         "tower", ("stack", [("top", block), ("rest", this())]), ("empty", [])
     )
+    stack = cs[0]
+    empty = cs[1]
+    top = ss[0]
+    rest = ss[1]
+    is_stack = ts[0]
 
     x = m.declare_var("x", tower)
     y = m.declare_var("y", tower)
@@ -268,10 +290,19 @@ def test_blockworld_no_ctx():
 
 def test_blockworld_yes_ctx():
     m = Module("blockworld")
-    block, a, b, c, d = enum("A", "B", "C", "D")
-    tower, stack, empty, top, rest, _, _ = datatype(
+    block, variants = enum("A", "B", "C", "D")
+    a = variants[0]
+    b = variants[1]
+    c = variants[2]
+    d = variants[3]
+
+    tower, cs, ss, _ = datatype(
         "tower", ("stack", [("top", block), ("rest", this())]), ("empty", [])
     )
+    stack = cs[0]
+    empty = cs[1]
+    top = ss[0]
+    rest = ss[1]
 
     x = m.declare_var("x", tower)
     y = m.declare_var("y", tower)

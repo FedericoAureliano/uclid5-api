@@ -50,7 +50,7 @@ def enum(*args):
     variants = list(args)
     name = "Enum_" + "_".join(variants)
     t, vs = z3.EnumSort(name, variants)
-    return t, *vs
+    return t, vs
 
 
 def record(*args):
@@ -63,7 +63,7 @@ def record(*args):
     dt = z3.Datatype(name)
     dt.declare(name, *[(n, t) for (n, t) in zip(field_names, field_types)])
     t = dt.create()
-    return t, t.constructor(0), *[t.accessor(0, i) for i in range(len(field_names))]
+    return t, t.constructor(0), [t.accessor(0, i) for i in range(len(field_names))]
 
 
 def datatype(name, *constructors):
@@ -82,13 +82,13 @@ def datatype(name, *constructors):
     t = dt.create()
     return (
         t,
-        *[t.constructor(i) for i in range(len(constructors))],
-        *[
+        [t.constructor(i) for i in range(len(constructors))],
+        [
             t.accessor(i, j)
             for i in range(len(constructors))
             for j in range(len(constructors[i][1]))
         ],
-        *[t.recognizer(i) for i in range(len(constructors))],
+        [t.recognizer(i) for i in range(len(constructors))],
     )
 
 

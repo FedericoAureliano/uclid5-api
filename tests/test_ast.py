@@ -177,7 +177,8 @@ def test_real():
 
 def test_enum():
     m = Module("test")
-    t, a, _, _ = enum("A", "B", "C")
+    t, variants = enum("A", "B", "C")
+    a = variants[0]
     y = m.declare_var("y", t)
 
     m.next.assign(y, a)
@@ -196,12 +197,8 @@ def test_enum():
 
 def test_record():
     m = Module("test")
-    (
-        t,
-        c,
-        select_x,
-        _,
-    ) = record(("x", integer()), ("y", integer()))
+    t, c, ss = record(("x", integer()), ("y", integer()))
+    select_x = ss[0]
     z = m.declare_var("z", t)
 
     m.init.assign(z, c(1, 2))
@@ -223,9 +220,14 @@ def test_record():
 
 def test_datatype():
     m = Module("test")
-    t, cons, nil, head, tail, is_cons, _ = datatype(
+    t, cs, ss, ts = datatype(
         "list", ("cons", [("head", integer()), ("tail", this())]), ("nil", [])
     )
+    cons = cs[0]
+    nil = cs[1]
+    head = ss[0]
+    tail = ss[1]
+    is_cons = ts[0]
 
     z = m.declare_var("z", t)
 
@@ -282,10 +284,18 @@ def test_havoc():
 
 def test_blockworld():
     m = Module("blockworld")
-    block, a, b, c, d = enum("S", "D", "F", "G")
-    tower, stack, empty, top, rest, _, _ = datatype(
+    block, variants = enum("S", "D", "F", "G")
+    a = variants[0]
+    b = variants[1]
+    c = variants[2]
+    d = variants[3]
+    tower, cs, ss, _ = datatype(
         "tower", ("stack", [("top", block), ("rest", this())]), ("empty", [])
     )
+    stack = cs[0]
+    empty = cs[1]
+    top = ss[0]
+    rest = ss[1]
 
     x = m.declare_var("x", tower)
     y = m.declare_var("y", tower)
