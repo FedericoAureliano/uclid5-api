@@ -1,34 +1,44 @@
+import functools
+import string
+import sys
+
 import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 
-from uclid5_api import Module, bmc, conjunction, datatype, enum, record, this
+from uclid5_api import And, Module, bmc, datatype, enum, record, this
+
+# get the first command line argument
+number_of_blocks = int(sys.argv[1])
+
+
+def foldl(func, acc, xs):
+    return functools.reduce(func, xs, acc)
+
 
 m = Module("blocksworld")
 
 # Define the block type
-blocks = ["A", "B", "C", "D"]
-Block, A, B, C, D = enum(*blocks)
+blocks = list(string.ascii_uppercase)[:number_of_blocks]
+Block, blocks = enum(*blocks)
 
 # Define the tower type
-Tower, stack, empty, top, rest, is_stack, is_empty = datatype(
+Tower, cs, ss, ts = datatype(
     "Tower", ("stack", [("top", Block), ("rest", this())]), ("empty", [])
 )
+stack, empty = cs[0], cs[1]
+top, rest = ss[0], ss[1]
+is_stack, is_empty = ts[0], ts[1]
 
 # Define the state type
 towers = ["left", "center", "right"]
-State, _, left, center, right = record(*zip(towers, [Tower] * len(towers)))
+State, _, sels = record(*zip(towers, [Tower] * len(towers)))
+left = sels[0]
+center = sels[1]
+right = sels[2]
 
 # Define the action type
-(
-    Action,
-    left_to_center,
-    left_to_right,
-    center_to_left,
-    center_to_right,
-    right_to_left,
-    right_to_center,
-) = enum(
+Action, actions = enum(
     "left-to-center",
     "left-to-right",
     "center-to-left",
@@ -37,7 +47,7 @@ State, _, left, center, right = record(*zip(towers, [Tower] * len(towers)))
     "right-to-center",
 )
 
-initial_config_left = stack(A, stack(B, stack(C, stack(D, empty()))))
+initial_config_left = foldl(lambda acc, x: stack(x, acc), empty(), blocks)
 initial_config_center = empty()
 initial_config_right = empty()
 
@@ -52,12 +62,12 @@ m.init.havoc(a)
 m.next.havoc(a)
 
 lr_branch, lc_branch, cl_branch, cr_branch, rl_branch, rc_branch, _ = m.next.branch(
-    conjunction(a == left_to_right, is_stack(left(s))),
-    conjunction(a == left_to_center, is_stack(left(s))),
-    conjunction(a == center_to_left, is_stack(center(s))),
-    conjunction(a == center_to_right, is_stack(center(s))),
-    conjunction(a == right_to_left, is_stack(right(s))),
-    conjunction(a == right_to_center, is_stack(right(s))),
+    And(a == actions[0], is_stack(left(s))),
+    And(a == actions[1], is_stack(left(s))),
+    And(a == actions[2], is_stack(center(s))),
+    And(a == actions[3], is_stack(center(s))),
+    And(a == actions[4], is_stack(right(s))),
+    And(a == actions[5], is_stack(right(s))),
 )
 
 lr_branch.assign(left(s), rest(left(s)))
@@ -77,7 +87,7 @@ m.assert_invariant("negated_goal", center(s) != initial_config_left)
 
 print(m)
 
-model = bmc(m, 10)
+model = bmc(m, len(blocks) * 2)
 
 steps = [v for k, v in model.items() if str(k).startswith("s")]
 
@@ -103,16 +113,12 @@ CB_color_cycle = [
 
 
 def color(block):
-    if block == "A":
-        return CB_color_cycle[0]
-    elif block == "B":
-        return CB_color_cycle[1]
-    elif block == "C":
-        return CB_color_cycle[2]
-    elif block == "D":
-        return CB_color_cycle[3]
-    else:
-        raise ValueError(f"Unknown block {block}")
+    idx = 0
+    for i, b in enumerate(blocks):
+        if str(block) == str(b):
+            idx = i
+            break
+    return CB_color_cycle[idx % len(CB_color_cycle)]
 
 
 def draw_board(s, sprime):
@@ -135,50 +141,48 @@ def draw_board(s, sprime):
         for _, block in enumerate(tower):
             plt.bar(
                 i,
-                height=1,
+                height=width * 0.8,
                 bottom=bottom[i],
                 color=color(block),
-                width=width,
+                width=width * 0.8,
                 align="center",
-                edgecolor="black",
                 linewidth=2,
-                alpha=0.1,
+                alpha=0.2,
             )
             ax.text(
                 i,
-                bottom[i] + width / 2,
+                bottom[i] + width * 0.8 / 2,
                 block,
                 horizontalalignment="center",
                 verticalalignment="center",
                 fontsize=30,
-                alpha=0.1,
+                alpha=0.2,
             )
-            bottom[i] += 1
+            bottom[i] += 1 * 0.8
 
     bottom = np.zeros(len(towers))
     for i, tower in enumerate([left_prime, center_prime, right_prime]):
         for _, block in enumerate(tower):
             plt.bar(
                 i,
-                height=1,
+                height=width * 0.8,
                 bottom=bottom[i],
                 color=color(block),
-                width=1,
+                width=width * 0.8,
                 align="center",
                 edgecolor="black",
                 linewidth=2,
-                alpha=1,
             )
             # add a label to the center of the block
             ax.text(
                 i,
-                bottom[i] + width / 2,
+                bottom[i] + width * 0.8 / 2,
                 block,
                 horizontalalignment="center",
                 verticalalignment="center",
                 fontsize=30,
             )
-            bottom[i] += 1
+            bottom[i] += 1 * 0.8
 
     left_add = [block for block in left_prime if block not in left]
     left_remove = [block for block in left if block not in left_prime]
@@ -209,8 +213,8 @@ def draw_board(s, sprime):
     if to_tower is not None and from_tower is not None:
         # draw an arrow from the top of the old from_tower
         # to the top of the new to_tower
-        source = (from_tower, len([left, center, right][from_tower]))
-        dest = (to_tower, len([left_prime, center_prime, right_prime][to_tower]))
+        source = (from_tower, len([left, center, right][from_tower]) * 0.8)
+        dest = (to_tower, len([left_prime, center_prime, right_prime][to_tower]) * 0.8)
         fraction = (
             0.8
             / np.linalg.norm(np.array(dest) - np.array(source))
@@ -267,7 +271,7 @@ def draw_board(s, sprime):
                 arrowstyle="-|>,head_length=0.4,head_width=0.4",
                 color="0.5",
                 linestyle="solid",
-                linewidth=1,
+                linewidth=2,
                 shrinkA=3,
                 shrinkB=3,
                 patchA=None,
@@ -278,15 +282,34 @@ def draw_board(s, sprime):
         # add a ball at the top of the old source tower
         ax.add_patch(plt.Circle((source[0], source[1] + 0.15), 0.05, color="0.5"))
 
-    ax.set_xticks([0, 1, 2])
-    ax.set_xticklabels(["left", "center", "right"])
+    ax.set_xticks([])
+    ax.set_xticklabels([])
     ax.set_yticks([])
-    ax.set_ylim(-0.05, len(blocks) + width / 6 + 0.05)
+    ax.set_ylim(-0.05, (len(blocks) + 1) * 0.8)
     ax.set_xlim(-width / 2 - 0.05, len(towers) - width / 2 + 0.05)
     ax.set_aspect("equal")
     # remove the frame
     for spine in ax.spines.values():
         spine.set_visible(False)
+
+    # draw a ] below all towers
+    for i in range(len(towers)):
+        ax.annotate(
+            "",
+            xy=(i, -0.05),
+            xycoords="data",
+            xytext=(i, -0.0819),
+            textcoords="data",
+            arrowprops=dict(
+                arrowstyle="-[,widthB=3,lengthB=0.25",
+                color="0",
+                linestyle="solid",
+                linewidth=2,
+            ),
+        )
+
+    # remove everything outside the spine
+    plt.tight_layout(pad=0.0, w_pad=0.0, h_pad=0.0)
 
     return fig
 
