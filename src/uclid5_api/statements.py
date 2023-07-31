@@ -73,6 +73,34 @@ class IfStmt(Statement):
         else:
             yield self.else_stmt
 
+    def __getitem__(self, i):
+        if i == 0:
+            return self.then_stmt
+        if i == 1:
+            return self.else_stmt
+        raise IndexError("Index out of range")
+
+    # add synonyms for then_stmt and else_stmt
+    @property
+    def then(self):
+        return self.then_stmt
+
+    @property
+    def then_(self):
+        return self.then_stmt
+
+    @property
+    def then_branch(self):
+        return self.then_stmt
+
+    @property
+    def else_(self):
+        return self.else_stmt
+
+    @property
+    def else_branch(self):
+        return self.else_stmt
+
     __match_args__ = ("cond", "then_stmt", "else_stmt")
 
 
