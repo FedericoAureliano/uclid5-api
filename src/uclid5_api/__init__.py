@@ -11,7 +11,7 @@ finally:
 
 import z3
 
-from .expr import And, Array, BitVec, Bool, Implies, Int, Ite, Not, Or, Real, prime
+from .expr import And, Array, BitVec, Bool, If, Implies, Int, Ite, Not, Or, Real, prime
 from .module import Module
 from .printer import UCLIDFormatter
 from .statements import ConcurrentBlock, SequentialBlock
@@ -49,6 +49,7 @@ __all__ = [
     "Implies",
     "Not",
     "Ite",
+    "If",
     "induction",
     "bmc",
     "SequentialBlock",

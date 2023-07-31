@@ -8,7 +8,11 @@ from .utils import indent, is_datatype_select, is_var, py2expr
 
 
 class Statement:
-    pass
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        pass
 
 
 @dataclass
@@ -62,6 +66,15 @@ class IfStmt(Statement):
         else_ = str(self.else_stmt)
         return f"if ({self.cond}) {then_}\nelse {else_}"
 
+    def __iter__(self):
+        yield self.then_stmt
+        if len(self.else_stmt) == 1 and isinstance(self.else_stmt[0], IfStmt):
+            yield from self.else_stmt[0]
+        else:
+            yield self.else_stmt
+
+    __match_args__ = ("cond", "then_stmt", "else_stmt")
+
 
 class Block(Statement):
     def __init__(self):
@@ -99,13 +112,18 @@ class Block(Statement):
         if len(conds) == 1:
             stmt = IfStmt(conds[0], self.__class__(), self.__class__())
             self._stmts.append(stmt)
-            return stmt.then_stmt, stmt.else_stmt
+            return stmt
 
         stmt = IfStmt(conds[0], self.__class__(), self.__class__())
         self._stmts.append(stmt)
+        stmt.else_stmt.branch(*conds[1:])
+        return stmt
 
-        inners = stmt.else_stmt.branch(*conds[1:])
-        return stmt.then_stmt, *inners
+    def __len__(self):
+        return len(self._stmts)
+
+    def __getitem__(self, i):
+        return self._stmts[i]
 
 
 class SequentialBlock(Block):

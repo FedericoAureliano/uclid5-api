@@ -108,3 +108,6 @@ def Ite(cond, then_, else_):
     Return the if-then-else of cond, then_, and else_
     """
     return z3.If(cond, then_, else_)
+
+
+If = Ite
