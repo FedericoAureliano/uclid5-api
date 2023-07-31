@@ -48,6 +48,10 @@ def Bool(b):
 
 
 BoolVal = Bool
+TRUE = Bool(True)
+FALSE = Bool(False)
+true = TRUE
+false = FALSE
 
 
 def Int(i):
@@ -78,6 +82,9 @@ def BitVec(b, n):
 
 
 BitVecVal = BitVec
+bv = BitVec
+bv_val = BitVec
+BVVal = BitVec
 
 
 def Array(value, sort):

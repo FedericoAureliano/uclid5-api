@@ -63,6 +63,8 @@ def bitvector(size):
 
 bitvector_sort = bitvector
 BitVecSort = bitvector
+bv_sort = bitvector
+BVSort = bitvector
 
 
 def enum(*args):
