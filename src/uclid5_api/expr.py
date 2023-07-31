@@ -47,11 +47,17 @@ def Bool(b):
     return z3.BoolVal(b)
 
 
+BoolVal = Bool
+
+
 def Int(i):
     """
     Return an integer expression
     """
     return z3.IntVal(i)
+
+
+IntVal = Int
 
 
 def Real(r):
@@ -61,11 +67,17 @@ def Real(r):
     return z3.RealVal(r)
 
 
+RealVal = Real
+
+
 def BitVec(b, n):
     """
     Return a bitvector expression
     """
     return z3.BitVecVal(b, n)
+
+
+BitVecVal = BitVec
 
 
 def Array(value, sort):
@@ -75,11 +87,17 @@ def Array(value, sort):
     return z3.K(sort, value)
 
 
+ArrayVal = Array
+
+
 def Or(*args):
     """
     Return the disjunction of the arguments
     """
     return z3.Or(*args)
+
+
+Disjunction = Or
 
 
 def And(*args):
@@ -89,6 +107,9 @@ def And(*args):
     return z3.And(*args)
 
 
+Conjunction = And
+
+
 def Implies(a, b):
     """
     Return the implication of a and b
@@ -96,11 +117,17 @@ def Implies(a, b):
     return z3.Implies(a, b)
 
 
+Implication = Implies
+
+
 def Not(a):
     """
     Return the negation of a
     """
     return z3.Not(a)
+
+
+Negation = Not
 
 
 def Ite(cond, then_, else_):

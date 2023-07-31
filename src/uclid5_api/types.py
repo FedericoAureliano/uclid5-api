@@ -15,11 +15,21 @@ def integer():
     return z3.IntSort()
 
 
+integer_sort = integer
+IntegerSort = integer
+
+
 def boolean():
     """
     Return the integer sort
     """
     return z3.BoolSort()
+
+
+boolean_sort = boolean
+BooleanSort = boolean
+BoolSort = boolean
+bool_sort = boolean
 
 
 def real():
@@ -29,6 +39,10 @@ def real():
     return z3.RealSort()
 
 
+real_sort = real
+RealSort = real
+
+
 def array(index, elem):
     """
     Return the array sort
@@ -36,11 +50,19 @@ def array(index, elem):
     return z3.ArraySort(index, elem)
 
 
+array_sort = array
+ArraySort = array
+
+
 def bitvector(size):
     """
     Return the bitvector sort
     """
     return z3.BitVecSort(size)
+
+
+bitvector_sort = bitvector
+BitVecSort = bitvector
 
 
 def enum(*args):
