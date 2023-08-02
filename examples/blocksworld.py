@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 
-from uclid5_api import And, Module, bmc, datatype, enum, record, this
+from uclid5_api import And, Module, Not, bmc, datatype, enum, record, this
 
 # get the first command line argument
 number_of_blocks = int(sys.argv[1])
@@ -47,9 +47,32 @@ Action, actions = enum(
     "right-to-center",
 )
 
-initial_config_left = foldl(lambda acc, x: stack(x, acc), empty(), blocks)
-initial_config_center = empty()
-initial_config_right = empty()
+
+def randomly_assign_blocks(blocks):
+    # put a random subset of blocks on the left, center, and right
+    left_blocks = np.random.choice(
+        blocks, size=np.random.randint(0, len(blocks) + 1), replace=False
+    )
+    blocks = [b for b in blocks if b not in left_blocks]
+    center_blocks = np.random.choice(
+        blocks, size=np.random.randint(0, len(blocks) + 1), replace=False
+    )
+    blocks = [b for b in blocks if b not in center_blocks]
+    right_blocks = blocks
+    left_tower = foldl(lambda acc, x: stack(x, acc), empty(), left_blocks)
+    center_tower = foldl(lambda acc, x: stack(x, acc), empty(), center_blocks)
+    right_tower = foldl(lambda acc, x: stack(x, acc), empty(), right_blocks)
+    return left_tower, center_tower, right_tower
+
+
+(
+    initial_config_left,
+    initial_config_center,
+    initial_config_right,
+) = randomly_assign_blocks(blocks)
+target_config_left, target_config_center, target_config_right = randomly_assign_blocks(
+    blocks
+)
 
 s = m.declare_var("s", State)
 a = m.declare_var("c", Action)
@@ -83,13 +106,18 @@ rl_branch.assign(left(s), stack(top(right(s)), left(s)))
 rc_branch.assign(right(s), rest(right(s)))
 rc_branch.assign(center(s), stack(top(right(s)), center(s)))
 
-m.assert_invariant("negated_goal", center(s) != initial_config_left)
+m.assert_invariant(
+    "negated_goal",
+    Not(
+        And(
+            left(s) == target_config_left,
+            center(s) == target_config_center,
+            right(s) == target_config_right,
+        )
+    ),
+)
 
 print(m)
-
-model = bmc(m, len(blocks) * 2)
-
-steps = [v for k, v in model.items() if str(k).startswith("s")]
 
 
 def tower_to_list(t):
@@ -97,6 +125,26 @@ def tower_to_list(t):
         return []
     else:
         return tower_to_list(t.arg(1)) + [str(t.arg(0))]
+
+
+l1 = len(tower_to_list(initial_config_left))
+c1 = len(tower_to_list(initial_config_center))
+r1 = len(tower_to_list(initial_config_right))
+l2 = len(tower_to_list(target_config_left))
+c2 = len(tower_to_list(target_config_center))
+r2 = len(tower_to_list(target_config_right))
+
+model = bmc(
+    m,
+    len(blocks) * 2,
+    f"blocksworld_from_{l1}_{c1}_{r1}_to_{l2}_{c2}_{r2}",
+)
+
+if model is None:
+    print("No model found")
+    exit(1)
+
+steps = [v for k, v in model.items() if str(k).startswith("s")]
 
 
 CB_color_cycle = [
